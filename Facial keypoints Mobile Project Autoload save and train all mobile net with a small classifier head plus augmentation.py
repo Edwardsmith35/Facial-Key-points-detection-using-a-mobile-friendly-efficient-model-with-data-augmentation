@@ -190,7 +190,7 @@ train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True, drop_l
 test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=False) # Added num_workers
 
 def get_model():
-    model = models.mobilenet_v3_large(weights=models.MobileNet_V3_)
+    model = models.mobilenet_v3_small(weights=models.MobileNet_V3_Small_Weights.IMAGENET1K_V1)
     for param in model.parameters():
         param.requires_grad = True # Fine-tuning all parameters
 
