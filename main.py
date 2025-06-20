@@ -139,7 +139,6 @@ def run_training_pipeline():
     print("\n--- Displaying predictions on a few validation/test images ---")
     if not val_df.empty:
         num_test_samples = min(3, len(val_df))
-        # Ensure consistent sampling if needed for reproducibility across runs
         sample_image_info = val_df.sample(n=num_test_samples, random_state=config.RANDOM_STATE_DATA_SPLIT if hasattr(config, 'RANDOM_STATE_DATA_SPLIT') else None)
         
         for _, row in sample_image_info.iterrows():
