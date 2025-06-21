@@ -1,6 +1,5 @@
 import torch
 import os
-import sys # Import sys
 
 # --- Device Configuration ---
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -24,7 +23,7 @@ TEST_SPLIT_RATIO = 0.2
 RANDOM_STATE_DATA_SPLIT = 101 # to replicate the same training run multiple times
 
 # --- Checkpoint Configuration ---
-IS_COLAB = True
+IS_COLAB = False
 
 BASE_SAVE_DIR = '/content/drive/MyDrive/' if IS_COLAB else 'outputs/'
 MODEL_SAVE_DIR_NAME = 'Facial_KeyPoints_Detection_MobileNetV3_Aug'

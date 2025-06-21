@@ -18,7 +18,7 @@ class FacialKeypointsDataset(Dataset):
         self.target_img_width = target_img_width
         self.target_img_height = target_img_height
         
-        # ImageNet normalization transform, Essential for Transfer learning
+        # Essential for Transfer learning
         self.imagenet_normalizer = transforms.Normalize(
             mean=[0.485, 0.456, 0.406],
             std=[0.229, 0.224, 0.225]
@@ -29,7 +29,7 @@ class FacialKeypointsDataset(Dataset):
     def _filter_valid_samples(self):
         """Filters the DataFrame to keep only rows with existing image files"""
         self.image_filenames = []
-        self.keypoints_data = [] # Stores lists of keypoint values
+        self.keypoints_data = []
 
         print(f"Initializing Dataset. Verifying {len(self.df)} image paths from DataFrame...")
         valid_indices = []
@@ -82,13 +82,14 @@ class FacialKeypointsDataset(Dataset):
                 # Fallback handled by using img_rgb_original and keypoints_for_albumentations
 
         # Image to Tensor and Normalize for Model
-        # img_processed_rgb is HWC, uint8 (Albumentations usually preserves this unless specific transforms changes it)
+        # img_processed_rgb is HWC
         img_resized_rgb = cv2.resize(img_processed_rgb, (self.target_img_width, self.target_img_height))
         img_float_0_1 = img_resized_rgb / 255.0  # HWC, RGB, float (0-1)
         img_tensor_chw = torch.tensor(img_float_0_1, dtype=torch.float32).permute(2, 0, 1) # permute from HWC to CHW
         img_tensor_normalized = self.imagenet_normalizer(img_tensor_chw)
 
         # Keypoints to Tensor and Normalize
+
         # Keypoints from Albumentations are pixel coordinates on img_processed_rgb
         # We Normalize them based on the dimensions of img_processed_rgb (image after augmentation but before final resize)
         aug_h, aug_w, _ = img_processed_rgb.shape
@@ -102,7 +103,7 @@ class FacialKeypointsDataset(Dataset):
             if i < num_visible_keypoints and keypoints_processed_pixels[i] is not None:
                 kp_pair_aug = keypoints_processed_pixels[i]
                 # Clip keypoints to be within image bounds before normalization
-                x_clipped = np.clip(kp_pair_aug[0], 0, aug_w -1) # -1 to avoid being exactly on boundary if aug_w is dim
+                x_clipped = np.clip(kp_pair_aug[0], 0, aug_w -1) # -1 to avoid being exactly on boundary
                 y_clipped = np.clip(kp_pair_aug[1], 0, aug_h -1)
                 
                 x_norm = x_clipped / aug_w
@@ -110,7 +111,6 @@ class FacialKeypointsDataset(Dataset):
                 normalized_keypoints_flat.extend([x_norm, y_norm])
             else:
                 # Pad with 0.5 (center) if keypoint is missing or invisible after augmentation
-                # This strategy might need refinement depending on how model handles "missing" keypoints
                 normalized_keypoints_flat.extend([0.5, 0.5]) 
         
         keypoints_tensor = torch.tensor(normalized_keypoints_flat, dtype=torch.float32)
